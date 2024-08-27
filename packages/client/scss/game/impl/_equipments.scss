@@ -1,0 +1,149 @@
+@use '../../abstracts/media';
+
+#equipments {
+    align-items: center;
+}
+
+#equipment-content {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    justify-content: space-between;
+}
+
+#equipments-player-visual {
+    display: grid;
+}
+
+#equipments-player-image {
+    z-index: 1;
+}
+
+#equipments-player-image,
+#equipment-slots {
+    display: flex;
+    grid-area: 1 / 1;
+    place-items: center;
+    align-items: center;
+    justify-content: center;
+}
+
+#equipments-player-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    flex: 1;
+    gap: 0.5em;
+
+    font-size: 1em;
+
+    .title {
+        padding-bottom: 0.5em;
+        text-decoration: underline;
+    }
+
+    p {
+        margin-bottom: 0.125em;
+    }
+}
+
+#equipments-player-image-canvas {
+    width: 8em;
+    height: 4em;
+}
+
+#equipments-player-image-navigator {
+    display: flex;
+    flex-direction: row;
+    font-size: 0.75em;
+}
+
+#equipment-slots {
+    position: relative;
+    width: 14em;
+    height: 14em;
+
+    .equipment-slot {
+        position: absolute;
+        z-index: 2;
+
+        width: 2em;
+        height: 2em;
+        padding: 0.25em;
+
+        &-image {
+            width: 100%;
+            height: 100%;
+            background-size: 100%;
+        }
+    }
+
+    .equipment-slot-helmet {
+        top: 0;
+        left: 6em;
+    }
+
+    .equipment-slot-pendant {
+        top: 1.25em;
+        left: 0.25em;
+    }
+
+    .equipment-slot-arrows {
+        top: 1.25em;
+        left: 11.75em;
+    }
+
+    .equipment-slot-arrows-count {
+        position: absolute;
+        top: -1em;
+        left: 0;
+
+        width: 2em;
+
+        text-align: center;
+    }
+
+    .equipment-slot-chestplate {
+        top: 2.5em;
+        left: 2.75em;
+    }
+
+    .equipment-slot-weapon {
+        top: 2.5em;
+        left: 9.25em;
+    }
+
+    .equipment-slot-shield {
+        top: 6em;
+        left: 11em;
+    }
+
+    .equipment-slot-armour-skin {
+        top: 9.5em;
+        left: 2.75em;
+    }
+
+    .equipment-slot-weapon-skin {
+        top: 9.5em;
+        left: 9.25em;
+    }
+
+    .equipment-slot-ring {
+        top: 6em;
+        left: 1em;
+    }
+
+    .equipment-slot-legplates {
+        top: 10.75em;
+        left: 0.25em;
+    }
+
+    .equipment-slot-cape {
+        top: 10.75em;
+        left: 11.75em;
+    }
+
+    .equipment-slot-boots {
+        top: 12em;
+        left: 6em;
+    }
+}

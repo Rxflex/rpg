@@ -1,0 +1,83 @@
+@use '../../abstracts/sprite';
+
+@include sprite.sheet($image: 'mapframe', $scale: 1.5, $selectors: #map-frame) {
+    pointer-events: auto;
+
+    position: absolute;
+    z-index: 100;
+    inset: 0;
+
+    display: none;
+
+    margin: auto;
+
+    background-repeat: no-repeat;
+}
+
+.map-button {
+    position: absolute;
+    background-position-y: 0;
+}
+
+.warp-button {
+    position: absolute;
+}
+
+@include sprite.sheet(
+    $image: 'mapicons',
+    $width: 16,
+    $height: 16,
+    $hover: 1,
+    $active: 2,
+    $rows: false,
+    $selectors: (
+        #warp0,
+        #warp1,
+        #warp2,
+        #warp3,
+        #warp4,
+        #warp5,
+        #warp6
+    )
+);
+
+#warp0 {
+    top: 3.75em;
+    left: 11.25em;
+}
+
+#warp1 {
+    top: 5.15625em;
+    left: 2.34375em;
+}
+
+#warp2 {
+    top: 6.5625em;
+    left: 16.40625em;
+}
+
+#warp3 {
+    top: 11.25em;
+    left: 12.65625em;
+}
+
+#warp4 {
+    top: 11.25em;
+    left: 7.03125em;
+}
+
+#warp5 {
+    top: 13.125em;
+    left: 1.875em;
+}
+
+#warp6 {
+    top: 7.5em;
+    left: 8.4375em;
+}
+
+@media (--portrait) {
+    #map-frame {
+        font-size: 0.875em;
+    }
+}

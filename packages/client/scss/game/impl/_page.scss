@@ -1,0 +1,54 @@
+@use '../../abstracts/media';
+@use '../../abstracts/sprite';
+
+.slice-page {
+    user-select: none;
+
+    position: absolute;
+    bottom: 3.5em;
+
+    display: none;
+
+    box-sizing: border-box;
+    width: 24em;
+    height: 15em;
+    padding: 1em 0.675em 0.675em;
+
+    color: #eee;
+
+    border-image: url('/img/interface/slices/dialog.png');
+    border-image-slice: 45% fill;
+    border-image-width: 1em;
+    border-image-outset: 0;
+    border-image-repeat: stretch;
+}
+
+#profile-container {
+    display: none;
+}
+
+#bank-inventory-container,
+#enchant-container {
+    float: left;
+}
+
+.inventory-slots {
+    position: absolute;
+    top: 13%;
+    left: 6%;
+}
+
+.item-count {
+    color: rgb(255 255 255 / 100%);
+}
+
+@include sprite.sheet('bank', $width: 128, $height: 126, $selectors: #enchant-container);
+@include sprite.sheet(
+    'main',
+    $y: 119,
+    $width: 14,
+    $height: 14,
+    $hover: 1,
+    $active: 2,
+    $selectors: '.ok-check'
+);

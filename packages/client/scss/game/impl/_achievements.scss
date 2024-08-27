@@ -1,0 +1,110 @@
+@use '../../abstracts/sprite';
+
+#achievements {
+    display: none;
+
+    &-tab {
+        position: absolute;
+        top: -3em;
+        left: calc(50% - 5.5em);
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+
+        width: 11em;
+        height: 3em;
+
+        #achievements-tab-arrow-left {
+            position: absolute;
+            top: 0.375em;
+            left: -1.6875em;
+
+            padding: 0.3125em;
+            padding-right: 0.25em;
+
+            border-image-width: 1em 0 1em 1em;
+
+            .colour-button-arrow-left {
+                position: static;
+            }
+        }
+
+        #achievements-tab-arrow-right {
+            position: absolute;
+            top: 0.375em;
+            right: -1.6875em;
+
+            padding: 0.3125em;
+            padding-left: 0.25em;
+
+            border-image-width: 1em 1em 1em 0;
+
+            .colour-button-arrow-right {
+                position: static;
+            }
+        }
+
+        span {
+            font-family: Fibberish;
+            font-size: 1.2em;
+        }
+    }
+
+    &-content {
+        height: 100%;
+        padding: 0.75em;
+
+        ul {
+            overflow: hidden auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+
+            height: 100%;
+            padding-right: 0.25em;
+
+            li {
+                display: flex;
+                flex-direction: row;
+                flex-shrink: 0;
+                gap: 0.5em;
+                align-items: center;
+
+                .achievement-title {
+                    flex: 1;
+                    font-family: Fibberish;
+                    font-size: 1.1em;
+                }
+
+                .achievement-description {
+                    flex: 2;
+                    font-size: 1em;
+                }
+            }
+        }
+    }
+}
+
+@media (--portrait) {
+    #achievements {
+        width: 22em;
+        height: 27em;
+        margin-bottom: 5em;
+    }
+}
+
+@include sprite.sheet($image: 'achievements', $width: 20, $height: 20, $selectors: '.coin-slot') {
+    box-sizing: border-box;
+    padding: 0.25em;
+}
+
+@include sprite.sheet(
+    $image: 'achievements',
+    $x: 21,
+    $y: 2,
+    $width: 16,
+    $height: 16,
+    $selectors: '.coin-default'
+);

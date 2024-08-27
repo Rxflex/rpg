@@ -1,0 +1,71 @@
+@use '../../abstracts/media';
+@use '../../abstracts/sprite';
+
+#chat {
+    pointer-events: auto;
+    scroll-behavior: smooth;
+
+    position: absolute;
+    bottom: 3em;
+    left: 1em;
+
+    display: none;
+    flex-direction: column;
+
+    width: 24em;
+
+    @media (--portrait) {
+        bottom: 6em;
+        font-size: 0.875em;
+    }
+}
+
+#chat-frame {
+    position: absolute;
+}
+
+#chat-log {
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    height: 10em;
+    margin: 1em 0.375em 0 0.675em;
+
+    text-shadow: 0.125em 0.125em 0.125em black;
+
+    p {
+        margin-bottom: 0.1em;
+        font-size: 1.25em;
+    }
+}
+
+#chat-log::-webkit-scrollbar {
+    width: 0;
+}
+
+#chat-input {
+    pointer-events: auto;
+
+    position: absolute;
+    bottom: -1.35em;
+
+    display: none;
+
+    box-sizing: border-box;
+    width: 22em;
+    height: 1.25em;
+    margin-left: 1em;
+
+    font-size: 1em;
+
+    background: transparent;
+    border: none;
+}
+
+#chat-log,
+#chat-input {
+    z-index: 4;
+    color: white;
+}
+
+@include sprite.sheet($image: 'chatbox', $scale: 1.5, $selectors: #chat-frame);

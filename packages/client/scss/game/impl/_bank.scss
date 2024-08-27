@@ -1,0 +1,54 @@
+@use '../../abstracts/sprite';
+
+#bank {
+    position: absolute;
+    inset: 0;
+
+    display: none;
+    flex-direction: row;
+
+    width: 37em;
+    height: 21em;
+    margin: auto;
+
+    @media (--portrait) {
+        flex-direction: column-reverse;
+        justify-content: center;
+
+        width: 21em;
+        height: 37em;
+
+        font-size: 0.875em;
+    }
+}
+
+#bank-container {
+    float: right;
+}
+
+#bank-container,
+#bank-inventory-container {
+    box-sizing: border-box;
+    padding: 2.75em 1.75em;
+}
+
+#bank-slots,
+#bank-inventory-slots {
+    overflow: auto;
+    display: flex;
+    flex-flow: row wrap;
+    gap: 0.25em;
+    justify-content: space-evenly;
+
+    width: 100%;
+    height: 100%;
+
+    list-style-type: none;
+
+    li {
+        float: left;
+    }
+}
+
+@include sprite.sheet('bank', $x: 132, $width: 168, $height: 166, $selectors: #bank-container);
+@include sprite.sheet('bank', $width: 128, $height: 126, $selectors: #bank-inventory-container);

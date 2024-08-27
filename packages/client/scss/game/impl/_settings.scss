@@ -1,0 +1,85 @@
+@use '../../abstracts/media';
+
+#settings-page {
+    display: none;
+
+    label {
+        display: flex;
+        gap: 0.25em;
+        align-items: center;
+        padding: 0.25em 0;
+
+        span,
+        input {
+            flex: 2;
+            font-size: 0.75em;
+        }
+
+        span {
+            font-size: 1em;
+        }
+
+        .checkmark {
+            flex: 1;
+
+            &::before {
+                float: right;
+            }
+        }
+    }
+}
+
+#settings-container {
+    flex-direction: row;
+    gap: 0.5em;
+    height: 100%;
+
+    @media (--portrait) {
+        flex-direction: column;
+    }
+}
+
+#input-settings,
+#action-settings {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#input-settings {
+    flex: 6;
+    flex-flow: row;
+    gap: 3em;
+    padding: 0.75em 1em;
+
+    > .col {
+        flex: 1;
+        justify-content: space-between;
+    }
+}
+
+#action-settings {
+    flex: 2;
+    flex-flow: column;
+    gap: 0.5em;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#game-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.5em;
+
+    width: 100%;
+
+    strong,
+    span {
+        font-size: 1em;
+    }
+}
+
+#joystick-enabled-checkbox[hidden] {
+    display: none;
+}

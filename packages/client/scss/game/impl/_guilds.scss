@@ -1,0 +1,482 @@
+@use '../../abstracts/media';
+@use '../../abstracts/sprite';
+
+#guilds {
+    display: none;
+    padding-left: 8.5em;
+}
+
+#guilds-info-container {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+}
+
+#guilds-create {
+    overflow: hidden;
+    display: none;
+    flex: 1;
+    flex-direction: row;
+    gap: 0.5em;
+    align-items: center;
+
+    @media (--portrait) {
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
+#create-guild {
+    position: absolute;
+    top: 6em;
+    left: 2.25em;
+}
+
+#guilds-list-container {
+    display: flex;
+    flex: 1;
+    gap: 0.5em;
+    text-align: center;
+}
+
+#guilds-list {
+    flex: 1;
+
+    ul {
+        padding-right: 0.25em;
+    }
+}
+
+#banner-select {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin: 0 1.5em;
+}
+
+#banner-options {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.25em;
+    justify-content: center;
+}
+
+#banner-colours {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25em;
+    justify-items: center;
+}
+
+#guilds-create-error {
+    height: 1em;
+
+    font-size: 0.675em;
+    color: rgb(233 31 31);
+    text-align: center;
+    text-shadow: 1px 1px 1px rgb(226 101 101);
+}
+
+#guilds-back-button,
+#guilds-create-button {
+    font-size: 0.75em;
+}
+
+#banner-outline {
+    position: absolute;
+    top: 0.875em;
+}
+
+#banner-colour-button,
+#banner-outline-button {
+    position: relative;
+    box-sizing: border-box;
+    padding: 0.375em;
+}
+
+#guilds-info-header {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5em;
+    align-items: center;
+}
+
+.title-decoration {
+    @include sprite.sheet(
+        $image: 'guilds/frames',
+        $x: 286,
+        $y: 8,
+        $width: 78,
+        $height: 6,
+        $selectors: '&::after'
+    ) {
+        content: '';
+    }
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $x: 105,
+    $y: 78,
+    $width: 9,
+    $height: 16,
+    $gap: 1,
+    $disabled: 1,
+    $rows: false,
+    $selectors: (
+        '.colour-button-arrow-left',
+        '.colour-button-arrow-right'
+    )
+);
+
+.colour-button-arrow-left {
+    position: absolute;
+    left: -1.5em;
+}
+
+.colour-button-arrow-right {
+    position: absolute;
+    right: -1.5em;
+}
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $y: 124,
+    $width: 22,
+    $height: 22,
+    $hover: 1,
+    $active: 2,
+    $selectors: (
+        '.button-banner-colour',
+        '.outline-button-1',
+        '.outline-button-2',
+        '.outline-button-3',
+        '.outline-button-4',
+        '.outline-button-5'
+    )
+);
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $x: 144,
+    $y: 160,
+    $width: 20,
+    $height: 20,
+    $gap: 1,
+    $rows: false,
+    $hover: 1,
+    $active: 2,
+    $selectors: '.banner-colour-button-outline'
+);
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $x: 165,
+    $y: 160,
+    $width: 20,
+    $height: 20,
+    $gap: 1,
+    $rows: false,
+    $selectors: (
+        '.banner-colour-button-teal',
+        '.banner-colour-button-green',
+        '.banner-colour-button-grey',
+        '.banner-colour-button-darkgrey',
+        '.banner-colour-button-red'
+    )
+);
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $x: 165,
+    $y: 181,
+    $width: 20,
+    $height: 20,
+    $gap: 1,
+    $rows: false,
+    $selectors: (
+        '.banner-colour-button-goldenyellow',
+        '.banner-colour-button-fuchsia',
+        '.banner-colour-button-brown',
+        '.banner-colour-button-cyan'
+    )
+);
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $x: 45,
+    $y: 78,
+    $width: 28,
+    $height: 14,
+    $scale: 2.5,
+    $rows: false,
+    $hover: 1,
+    $active: 2,
+    $selectors: (
+        '.element-button',
+        '.element-button-red'
+    )
+) {
+    line-height: 1.75em;
+    text-align: center;
+
+    &:hover {
+        line-height: 2em;
+    }
+
+    &:active,
+    &.active {
+        line-height: 2.25em;
+    }
+}
+
+@include sprite.sheet(
+    $image: 'guilds/banners',
+    $width: 50,
+    $scale: 2.25,
+    $rows: false,
+    $selectors: (
+        '.banner-grey',
+        '.banner-green',
+        '.banner-fuchsia',
+        '.banner-red',
+        '.banner-brown',
+        '.banner-cyan',
+        '.banner-darkgrey',
+        '.banner-teal',
+        '.banner-goldenyellow'
+    )
+) {
+    position: absolute;
+    top: -1.375em;
+    left: 1em;
+    box-sizing: border-box;
+}
+
+@include sprite.sheet(
+    $image: 'guilds/outline1',
+    $width: 50,
+    $scale: 2.25,
+    $rows: false,
+    $selectors: (
+        '.banner-outline-1.banner-outline-goldenyellow',
+        '.banner-outline-1.banner-outline-fuchsia',
+        '.banner-outline-1.banner-outline-red',
+        '.banner-outline-1.banner-outline-brown',
+        '.banner-outline-1.banner-outline-cyan',
+        '.banner-outline-1.banner-outline-darkgrey',
+        '.banner-outline-1.banner-outline-teal',
+        '.banner-outline-1.banner-outline-green',
+        '.banner-outline-1.banner-outline-grey'
+    )
+);
+
+@include sprite.sheet(
+    $image: 'guilds/outline2',
+    $width: 50,
+    $scale: 2.25,
+    $rows: false,
+    $selectors: (
+        '.banner-outline-2.banner-outline-goldenyellow',
+        '.banner-outline-2.banner-outline-fuchsia',
+        '.banner-outline-2.banner-outline-red',
+        '.banner-outline-2.banner-outline-brown',
+        '.banner-outline-2.banner-outline-cyan',
+        '.banner-outline-2.banner-outline-darkgrey',
+        '.banner-outline-2.banner-outline-teal',
+        '.banner-outline-2.banner-outline-green',
+        '.banner-outline-2.banner-outline-grey'
+    )
+);
+
+@include sprite.sheet(
+    $image: 'guilds/outline3',
+    $width: 50,
+    $scale: 2.25,
+    $rows: false,
+    $selectors: (
+        '.banner-outline-3.banner-outline-goldenyellow',
+        '.banner-outline-3.banner-outline-fuchsia',
+        '.banner-outline-3.banner-outline-red',
+        '.banner-outline-3.banner-outline-brown',
+        '.banner-outline-3.banner-outline-cyan',
+        '.banner-outline-3.banner-outline-darkgrey',
+        '.banner-outline-3.banner-outline-teal',
+        '.banner-outline-3.banner-outline-green',
+        '.banner-outline-3.banner-outline-grey'
+    )
+);
+
+@include sprite.sheet(
+    $image: 'guilds/outline4',
+    $width: 50,
+    $scale: 2.25,
+    $rows: false,
+    $selectors: (
+        '.banner-outline-4.banner-outline-goldenyellow',
+        '.banner-outline-4.banner-outline-fuchsia',
+        '.banner-outline-4.banner-outline-red',
+        '.banner-outline-4.banner-outline-brown',
+        '.banner-outline-4.banner-outline-cyan',
+        '.banner-outline-4.banner-outline-darkgrey',
+        '.banner-outline-4.banner-outline-teal',
+        '.banner-outline-4.banner-outline-green',
+        '.banner-outline-4.banner-outline-grey'
+    )
+);
+
+@include sprite.sheet(
+    $image: 'guilds/outline5',
+    $width: 50,
+    $scale: 2.25,
+    $rows: false,
+    $selectors: (
+        '.banner-outline-5.banner-outline-goldenyellow',
+        '.banner-outline-5.banner-outline-fuchsia',
+        '.banner-outline-5.banner-outline-red',
+        '.banner-outline-5.banner-outline-brown',
+        '.banner-outline-5.banner-outline-cyan',
+        '.banner-outline-5.banner-outline-darkgrey',
+        '.banner-outline-5.banner-outline-teal',
+        '.banner-outline-5.banner-outline-green',
+        '.banner-outline-5.banner-outline-grey'
+    )
+);
+
+#member-list-container {
+    flex: 1;
+
+    ul {
+        overflow: hidden auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+
+        li {
+            flex-shrink: 0;
+        }
+    }
+}
+
+#guild-member-selected {
+    padding: 0.5em;
+    text-align: center;
+}
+
+#guild-member-demote {
+    margin-right: 1em;
+}
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $x: 242,
+    $width: 12,
+    $height: 12,
+    $gap: 2,
+    $rows: false,
+    $selectors: (
+        '.members-icon',
+        '.chat-icon'
+    )
+);
+
+#guilds-chat {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+}
+
+#guilds-chat-log {
+    overflow: auto;
+    flex: 1;
+}
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $x: 128,
+    $y: 80,
+    $width: 125,
+    $height: 22,
+    $gap: 1,
+    $scale: 2.5,
+    $hover: 1,
+    $active: 2,
+    $rows: false,
+    $selectors: '.slot-element'
+) {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5em;
+    align-items: center;
+
+    box-sizing: border-box;
+    padding-right: 2em;
+    padding-left: 0.875em;
+
+    .name {
+        flex: 1;
+    }
+}
+
+.slot-image {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    width: 2em;
+    height: 2em;
+}
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $x: 144,
+    $y: 48,
+    $width: 14,
+    $height: 12,
+    $rows: false,
+    $gap: 2,
+    $selectors: (
+        '.slot-image-landlord',
+        '.slot-image-master',
+        '.slot-image-elite',
+        '.slot-image-veteran',
+        '.slot-image-adept',
+        '.slot-image-established',
+        '.slot-image-emergent',
+        '.slot-image-fledgling'
+    )
+);
+
+#sidebar-list {
+    position: absolute;
+    top: 6em;
+    right: -4.25em;
+}
+
+@include sprite.sheet(
+    $image: 'guilds/elements',
+    $width: 43,
+    $height: 22,
+    $y: 57,
+    $hover: 1,
+    $active: 2,
+    $rows: false,
+    $selectors: '.sidebar-element'
+) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    box-sizing: border-box;
+    padding-left: 1em;
+
+    &:hover:not(:active, .active) {
+        padding-left: 2em;
+    }
+}

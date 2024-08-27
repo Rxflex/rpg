@@ -1,0 +1,85 @@
+@use '../../abstracts/media';
+@use '../../abstracts/sprite';
+
+#action-container {
+    position: absolute;
+    right: 13em;
+    bottom: 5em;
+
+    display: none;
+
+    width: 8em;
+    height: 10em;
+    padding-right: 0;
+
+    border-image-width: 1em 0 1em 1em;
+}
+
+#action-page {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: 100%;
+
+    ul {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+}
+
+.action-item-description {
+    overflow: auto;
+    flex: 1;
+    font-size: 0.9em;
+}
+
+.action-item-name {
+    text-align: center;
+}
+
+.action-item-name,
+.action-item-description {
+    color: #fff;
+}
+
+#action-description-attack {
+    left: 0.25em;
+}
+
+#action-description-defense {
+    right: 0;
+}
+
+#action-description-bonuses {
+    bottom: 1.375em;
+    left: 0.25em;
+}
+
+#action-description-enchantments {
+    right: 0;
+    bottom: 1.375em;
+}
+
+@include sprite.sheet(
+    $image: 'main',
+    $x: 63,
+    $width: 16,
+    $height: 16,
+    $hover: 2,
+    $active: 1,
+    $selectors: (
+        '.action-button',
+        '.action-attack',
+        '.action-equip',
+        '.action-drop-one',
+        '.action-drop-many',
+        '.action-eat',
+        '.action-interact',
+        '.action-trade',
+        '.action-potion',
+        '.action-follow',
+        '.action-examine',
+        '.action-addfriend'
+    )
+);

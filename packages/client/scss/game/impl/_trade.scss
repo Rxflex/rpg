@@ -1,0 +1,76 @@
+@use '../../abstracts/media';
+
+#trade {
+    display: none;
+    width: 37.875em;
+    height: 21.5em;
+}
+
+#trade-content {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: space-between;
+
+    height: 100%;
+
+    .player-trade {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+        align-items: center;
+        justify-content: space-between;
+
+        height: 100%;
+    }
+}
+
+#trade-inventory-slots,
+#trade-player-slots,
+#trade-oplayer-slots {
+    ul {
+        overflow: hidden auto;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.25em;
+
+        height: 100%;
+        padding-right: 0.375em;
+
+        li {
+            font-size: 0.875em;
+        }
+    }
+}
+
+#trade-inventory {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    justify-content: center;
+
+    height: 100%;
+}
+
+#trade-player {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    align-items: center;
+}
+
+#trade-player-content {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    height: 100%;
+}
+
+#trade-status {
+    height: 1em;
+    font-size: 0.75em;
+}
+
+#trade-accept {
+    width: 10em;
+}

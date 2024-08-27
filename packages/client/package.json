@@ -1,0 +1,45 @@
+{
+    "name": "@kaetram/client",
+    "type": "module",
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro check && tsc && astro build",
+        "start": "sirv dist -p 9000 --no-logs"
+    },
+    "dependencies": {
+        "@astrojs/check": "^0.2.0",
+        "@astrojs/partytown": "^2.0.0",
+        "@kaetram/common": "workspace:*",
+        "astro-compress": "^2.0.15",
+        "gl-tiled": "^1.0.0",
+        "illuminated": "^1.3.7",
+        "kaetram": "workspace:*",
+        "pako": "^2.1.0",
+        "socket.io-client": "^4.7.2"
+    },
+    "devDependencies": {
+        "@astrojs/sitemap": "^3.0.0",
+        "@astrolib/analytics": "^0.4.2",
+        "@sentry/browser": "^7.68.0",
+        "@sentry/tracing": "^7.68.0",
+        "@sentry/vite-plugin": "^2.7.1",
+        "@types/dotenv-parse-variables": "^2.0.1",
+        "@types/html-minifier-terser": "^7.0.0",
+        "@types/pako": "^2.0.0",
+        "@types/workbox-build": "^5.1.0",
+        "astro": "^3.2.0",
+        "astro-compressor": "^0.4.0",
+        "astro-i18n-aut": "^0.4.23",
+        "astro-robots-txt": "^1.0.0",
+        "astro-seo-schema": "^3.2.1",
+        "astro-webmanifest": "^1.0.0",
+        "dotenv-extended": "^2.9.0",
+        "dotenv-parse-variables": "^2.0.0",
+        "image-size": "^1.0.2",
+        "sass": "^1.66.1",
+        "sirv-cli": "^2.0.2",
+        "typescript": "^5.2.2",
+        "vite-plugin-glsl": "^1.1.2",
+        "vite-plugin-pwa": "^0.16.4"
+    }
+}

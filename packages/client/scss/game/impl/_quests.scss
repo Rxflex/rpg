@@ -1,0 +1,59 @@
+@use '../../abstracts/media';
+
+#quests {
+    display: none;
+}
+
+#quests-container {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    height: 100%;
+}
+
+#quests-list {
+    flex: 3;
+
+    ul {
+        overflow: hidden auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25em;
+
+        height: 100%;
+        padding-right: 0.25em;
+
+        li {
+            flex-shrink: 0;
+        }
+    }
+}
+
+#quests-logs {
+    flex: 4;
+}
+
+#quests-logs-container {
+    overflow: auto;
+    height: 100%;
+}
+
+@media (--portrait) {
+    #quests {
+        width: 20em;
+        height: 30em;
+        margin-bottom: 5em;
+    }
+
+    #quests-container {
+        flex-direction: column;
+
+        #quests-list {
+            flex: 3;
+        }
+
+        #quests-logs {
+            flex: 4;
+        }
+    }
+}
