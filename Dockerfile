@@ -1,4 +1,4 @@
-# Используем официальный образ Node.js как базовый
+# Используем официальный образ Node.js
 FROM node:20
 
 # Устанавливаем переменную окружения для хранения пути к приложению
@@ -7,16 +7,15 @@ ENV APP_HOME /usr/src/app
 # Создаем рабочую директорию внутри контейнера
 WORKDIR $APP_HOME
 
+# Устанавливаем Yarn
+RUN corepack enable && corepack prepare yarn@stable --activate
+
 # Копируем файл package.json и yarn.lock (если есть) в рабочую директорию
 COPY package.json ./
 COPY yarn.lock ./
 
-# Устанавливаем Yarn по указанной версии в package.json
-RUN corepack enable
-RUN corepack prepare yarn@$(node -p "require('./package.json').packageManager.split('@')[1]") --activate
-
 # Устанавливаем все зависимости
-RUN yarn install --immutable
+RUN yarn install --frozen-lockfile
 
 # Копируем весь исходный код в рабочую директорию
 COPY . .
