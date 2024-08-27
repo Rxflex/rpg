@@ -1,0 +1,43 @@
+@use '../../abstracts/media';
+@use '../../abstracts/sprite';
+
+dialog {
+    inset: 0;
+    color: #e3e3e3;
+
+    input {
+        display: block;
+
+        width: 7.5em;
+        margin: 0.25em;
+
+        font-size: 0.75em;
+        color: white;
+
+        background-color: rgb(0 0 0 / 50%);
+    }
+}
+
+.dialog-title {
+    font-size: 0.75em;
+    text-align: center;
+}
+
+.dialog-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+@include sprite.sheet(
+    $image: 'characterdialogsheet',
+    $y: 308,
+    $width: 21,
+    $height: 14,
+    $hover: 2,
+    $active: 1,
+    $selectors: (
+        '.confirm',
+        '.cancel'
+    )
+);

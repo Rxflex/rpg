@@ -1,0 +1,80 @@
+@use '../../abstracts/media';
+
+#world-select-button {
+    cursor: pointer;
+
+    position: absolute;
+    bottom: 0;
+    left: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+    margin: 1em;
+
+    color: #eee;
+
+    &[hidden] {
+        display: none;
+    }
+}
+
+#worlds {
+    overflow-y: auto;
+
+    li {
+        cursor: pointer;
+
+        display: flex;
+        flex: 1;
+        flex-direction: row;
+        justify-content: space-evenly;
+
+        box-sizing: border-box;
+        padding: 0.5em 0;
+
+        border: 0.125em solid transparent;
+
+        &:nth-child(odd) {
+            background-color: rgb(0 0 0 / 25%);
+        }
+
+        &:hover {
+            background-color: rgb(0 0 0 / 50%);
+        }
+
+        &:active {
+            background-color: rgb(0 0 0 / 75%);
+        }
+
+        &.active {
+            color: #fcda5c;
+            background-color: rgb(0 0 0 / 75%);
+            border-color: #fcda5c;
+        }
+    }
+}
+
+.button-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+}
+
+#cancel-worlds,
+#continue-worlds {
+    position: relative;
+}
+
+@media (--portrait) {
+    #world-select-button {
+        bottom: 4em;
+    }
+}

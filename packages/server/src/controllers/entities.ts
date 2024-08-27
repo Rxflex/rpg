@@ -1,0 +1,793 @@
+import mobData from '../../data/mobs.json';
+import itemData from '../../data/items.json';
+import npcData from '../../data/npcs.json';
+import treeData from '../../data/trees.json';
+import rockData from '../../data/rocks.json';
+import fishSpotData from '../../data/fishing.json';
+import foragingData from '../../data/foraging.json';
+import NPC from '../game/entity/npc/npc';
+import Item from '../game/entity/objects/item';
+import Chest from '../game/entity/objects/chest';
+import Mob from '../game/entity/character/mob/mob';
+import Character from '../game/entity/character/character';
+import Projectile from '../game/entity/objects/projectile';
+import LootBag from '../game/entity/objects/lootbag';
+import Pet from '../game/entity/character/pet/pet';
+import Effect from '../game/entity/objects/effect';
+import Tree from '../game/entity/objects/resource/impl/tree';
+import Rock from '../game/entity/objects/resource/impl/rock';
+import FishSpot from '../game/entity/objects/resource/impl/fishspot';
+import Foraging from '../game/entity/objects/resource/impl/foraging';
+
+import log from '@kaetram/common/util/log';
+import { Modules } from '@kaetram/common/network';
+import { BlinkPacket, DespawnPacket, ResourcePacket } from '@kaetram/common/network/impl';
+
+import type Map from '../game/map/map';
+import type World from '../game/world';
+import type Grids from '../game/map/grids';
+import type Regions from '../game/map/regions';
+import type Entity from '../game/entity/entity';
+import type Hit from '../game/entity/character/combat/hit';
+import type Player from '../game/entity/character/player/player';
+import type { Enchantments } from '@kaetram/common/types/item';
+
+export default class Entities {
+    private map: Map;
+    private regions: Regions;
+    private grids: Grids;
+
+    // Stores all the entities in the world.
+    private entities: { [instance: string]: Entity } = {};
+
+    public players: { [instance: string]: Player } = {};
+    private items: { [instance: string]: Item } = {};
+    private mobs: { [instance: string]: Mob } = {};
+    private chests: { [instance: string]: Chest } = {};
+    private npcs: { [instance: string]: NPC } = {};
+    private pets: { [instance: string]: Pet } = {};
+    private lootBags: { [instance: string]: LootBag } = {};
+    private effects: { [instance: string]: Effect } = {};
+    private trees: { [instance: string]: Tree } = {};
+    private rocks: { [instance: string]: Rock } = {};
+    private fishSpots: { [instance: string]: FishSpot } = {};
+    private foragings: { [instance: string]: Foraging } = {};
+
+    public constructor(private world: World) {
+        this.map = world.map;
+        this.regions = this.world.map.regions;
+        this.grids = this.world.map.grids;
+
+        this.load();
+    }
+
+    /**
+     * Looks through all the static entities in the map and spawns
+     * them according to their type. Next, we load up all the chests
+     * in the world.
+     */
+
+    private load(): void {
+        this.map.forEachEntity((position: Position, key: string) => {
+            let type = this.getEntityType(key);
+
+            switch (type) {
+                case Modules.EntityType.Item: {
+                    return this.spawnItem(key, position.x, position.y, false);
+                }
+
+                case Modules.EntityType.NPC: {
+                    return this.spawnNPC(key, position.x, position.y);
+                }
+
+                case Modules.EntityType.Mob: {
+                    return this.spawnMob(key, position.x, position.y);
+                }
+
+                case Modules.EntityType.Tree: {
+                    return this.spawnTree(key, position.x, position.y);
+                }
+
+                case Modules.EntityType.Rock: {
+                    return this.spawnRock(key, position.x, position.y);
+                }
+
+                case Modules.EntityType.FishSpot: {
+                    return this.spawnFishSpots(key, position.x, position.y);
+                }
+
+                case Modules.EntityType.Foraging: {
+                    return this.spawnForaging(key, position.x, position.y);
+                }
+            }
+        });
+
+        log.info(`Spawned ${Object.keys(this.items).length} items!`);
+        log.info(`Spawned ${Object.keys(this.npcs).length} NPCs!`);
+        log.info(`Spawned ${Object.keys(this.mobs).length} mobs!`);
+        log.info(`Spawned ${Object.keys(this.trees).length} trees!`);
+        log.info(`Spawned ${Object.keys(this.rocks).length} rocks!`);
+        log.info(`Spawned ${Object.keys(this.fishSpots).length} fish spots!`);
+        log.info(`Spawned ${Object.keys(this.foragings).length} foraging spots!`);
+
+        // Spawns the static chests throughout the world.
+
+        for (let info of this.map.chest)
+            this.spawnChest(
+                info.items?.split(',') || [],
+                info.x,
+                info.y,
+                true,
+                info.achievement,
+                info.mimic
+            );
+
+        log.info(`Spawned ${Object.keys(this.chests).length} static chests!`);
+
+        // Initialize the roaming interval for mobs
+        setInterval(
+            () =>
+                this.forEachMob((mob) => {
+                    // Roaming only when players are in the region when there are more than 30 players online.
+                    if (
+                        !this.regions.get(mob.region)?.hasPlayersInRegion() &&
+                        this.world.getPopulation() > 30
+                    )
+                        return;
+
+                    mob.roamingCallback?.();
+                }),
+            Modules.MobDefaults.ROAM_FREQUENCY
+        );
+    }
+
+    /**
+     * Spawning function for creating an item. Primary purpose of this is
+     * to lessen the amount of code necessary should we try to spawn
+     * an item from external means.
+     * @param key The item key
+     * @param x The x position in the grid to spawn the item.
+     * @param y The y position in the grid to spawn the item.
+     * @param dropped If the item is permanent or it will disappear.
+     * @param count The amount of the item dropped.
+     * @param enchantments The enchantments applied to the item.
+     */
+
+    public spawnItem(
+        key: string,
+        x: number,
+        y: number,
+        dropped = false,
+        count = 1,
+        enchantments: Enchantments = {},
+        owner = ''
+    ): void {
+        this.addItem(new Item(key, x, y, dropped, count, enchantments, owner));
+    }
+
+    /**
+     * Spawns a loot bag in the world and adds the provided items onto its container.
+     * @param x The x grid coordinate of the loot bag spawn.
+     * @param y The y grid coordinate of the loot bag spawn.
+     * @param owner The instance of the player that has priority over the loot bag.
+     * @param items The list of item entities that the loot bag will contain.
+     */
+
+    public spawnLootBag(x: number, y: number, owner: string, items: Item[]): void {
+        // Do not spawn a loot bag if it is empty.
+        if (items.length === 0) return;
+
+        this.addLootBag(new LootBag(this.world, x, y, owner, items));
+    }
+
+    /**
+     * Spawns a mob and adds it to the world. Similarly to `spawnItem` this
+     * function is used to easily spawn mobs from external means.
+     * @param key The key of the mub, used to determine its sprite.
+     * @param x The x grid coordinate of the mob spawn.
+     * @param y The y grid coordinate of the mob spawn.
+     * @param plugin Whether or not to use a plugin with the mob's key.
+     * @returns The mob object we just created.
+     */
+
+    public spawnMob(key: string, x: number, y: number, plugin = false): Mob {
+        let mob = new Mob(this.world, key, x, y, plugin);
+
+        this.addMob(mob);
+
+        return mob;
+    }
+
+    /**
+     * Spawns a tree in the world and adds it to the world.
+     * @param key The key of the tree, used to determine its sprite.
+     * @param x The x grid coordinate of the tree spawn.
+     * @param y The y grid coordinate of the tree spawn.
+     * @returns A new tree object.
+     */
+
+    public spawnTree(key: string, x: number, y: number): Tree {
+        let tree = new Tree(key, x, y);
+
+        tree.onStateChange(() => {
+            this.world.push(Modules.PacketType.Regions, {
+                region: tree.region,
+                packet: new ResourcePacket({
+                    instance: tree.instance,
+                    state: tree.state
+                })
+            });
+        });
+
+        this.add(tree);
+
+        this.trees[tree.instance] = tree;
+
+        return tree;
+    }
+
+    /**
+     * Spawns a rock in the world and adds it to the world.
+     * @param key The key of the rock, used to determine its sprite.
+     * @param x The x grid coordinate of the rock spawn.
+     * @param y The y grid coordinate of the rock spawn.
+     * @returns A new rock object.
+     */
+
+    public spawnRock(key: string, x: number, y: number): Tree {
+        let rock = new Rock(key, x, y);
+
+        rock.onStateChange(() => {
+            this.world.push(Modules.PacketType.Regions, {
+                region: rock.region,
+                packet: new ResourcePacket({
+                    instance: rock.instance,
+                    state: rock.state
+                })
+            });
+        });
+
+        this.add(rock);
+
+        this.rocks[rock.instance] = rock;
+
+        return rock;
+    }
+
+    /**
+     * Spawns a fish spots in the world and adds it to the world.
+     * @param key The key of the fish spots, used to determine its sprite.
+     * @param x The x grid coordinate of the fish spots spawn.
+     * @param y The y grid coordinate of the fish spots spawn.
+     * @returns A new fish spots object.
+     */
+
+    public spawnFishSpots(key: string, x: number, y: number): Tree {
+        let fishSpots = new FishSpot(key, x, y);
+
+        fishSpots.onStateChange(() => {
+            this.world.push(Modules.PacketType.Regions, {
+                region: fishSpots.region,
+                packet: new ResourcePacket({
+                    instance: fishSpots.instance,
+                    state: fishSpots.state
+                })
+            });
+        });
+
+        this.add(fishSpots);
+
+        this.fishSpots[fishSpots.instance] = fishSpots;
+
+        return fishSpots;
+    }
+
+    /**
+     * Spawns a foraging spot in the world and adds it to the world.
+     * @param key The key of the foraging spot, used to determine its sprite.
+     * @param x The x grid coordinate of the foraging spot spawn.
+     * @param y The y grid coordinate of the foraging spot spawn.
+     * @returns A new foraging spot object.
+     */
+
+    public spawnForaging(key: string, x: number, y: number): Tree {
+        let foraging = new Foraging(key, x, y);
+
+        foraging.onStateChange(() => {
+            this.world.push(Modules.PacketType.Regions, {
+                region: foraging.region,
+                packet: new ResourcePacket({
+                    instance: foraging.instance,
+                    state: foraging.state
+                })
+            });
+        });
+
+        this.add(foraging);
+
+        this.foragings[foraging.instance] = foraging;
+
+        return foraging;
+    }
+
+    /**
+     * Spawns a chest in the world at the given position.
+     * @param items The items that the chest might drop.
+     * @param x The x grid coordinate of the chest spawn.
+     * @param y The y grid coordinate of the chest spawn.
+     * @param isStatic If the chest respawns when it is opened.
+     * @param achievement Achievement ID that the chest is tied to.
+     * @returns The chest object we just created.
+     */
+
+    public spawnChest(
+        items: string[],
+        x: number,
+        y: number,
+        isStatic = false,
+        achievement?: string,
+        mimic = false
+    ): Chest {
+        let chest = new Chest(x, y, achievement, mimic, items);
+
+        // Static chests respawn after a certain amount of time.
+        if (isStatic) {
+            chest.static = isStatic;
+            chest.onRespawn(() => this.add(chest));
+        }
+
+        chest.onOpen((player?: Player) => {
+            this.remove(chest);
+
+            // We use the player's world instance to spawn mimic mob.
+            if (player && mimic) {
+                let mimic = this.spawnMob('mimic', chest.x, chest.y);
+
+                // Mimic's death respawns the chest. We also ensure mimic doesn't respawn.
+                if (mimic) {
+                    mimic.respawnable = false;
+                    mimic.chest = chest;
+                }
+            }
+
+            // Spawn chest items if there are any.
+            let item = chest.getItem();
+
+            if (!item) return;
+
+            this.spawnItem(item.key, chest.x, chest.y, true, item.count);
+
+            // Reward the player with an achievement if they have one.
+            if (player && chest.achievement) player.achievements.get(chest.achievement)?.finish();
+        });
+
+        this.addChest(chest);
+
+        return chest;
+    }
+
+    /**
+     * Shorcut for creating a new NPC instance and adding it to the world.
+     * @param key The key of the NPC we are creating (for sprite and identification).
+     * @param x The x grid coordinate of the NPC spawn.
+     * @param y THe y grid coordinate of the NPC spawn.
+     */
+
+    private spawnNPC(key: string, x: number, y: number): void {
+        this.addNPC(new NPC(key, x, y));
+    }
+
+    /**
+     * Creates a projectile and adds it to the world. Projectiles are despawned
+     * server-sided after a calculated amount of time that would take
+     * them to reach their target.
+     * @param owner The owner of the projectile, used to grab the projectile sprite.
+     * @param target The target the projectile goes after.
+     * @param hit Information about the hit type.
+     * @returns The projectile object that was created.
+     */
+
+    public spawnProjectile(owner: Character, target: Character, hit: Hit): Projectile {
+        let projectile = new Projectile(owner, target, hit);
+
+        // Remove on impact
+        projectile.onImpact(() => this.remove(projectile));
+
+        this.add(projectile);
+
+        return projectile;
+    }
+
+    /**
+     * Spawns a new pet in the world and sends the spawn to the
+     * nearby players.
+     * @param owner The owner of the pet, who is spawning the pet.
+     * @param key The key of the pet we are spawning.
+     * @returns The pet object that was created.
+     */
+
+    public spawnPet(owner: Player, key: string): Pet {
+        let pet = new Pet(owner, key);
+
+        this.addPet(pet);
+
+        return pet;
+    }
+
+    /**
+     * Spawns an effect-based entity at a specific location and adds
+     * it to the world.
+     * @param key The key of the effect we are spawning.
+     * @param x The x grid coordinate of the effect spawn.
+     * @param y The y grid coordinate of the effect spawn.
+     */
+
+    public spawnEffect(key: string, x: number, y: number): void {
+        this.addEffect(new Effect(key, x, y));
+    }
+
+    /**
+     * Registers an entity within the world. This is used to keep track
+     * of all the entities in a single dictionary. This may contain every
+     * type of entity, including players, mobs, and items, etc.
+     * @param entity The entity we are adding to the world.
+     */
+
+    private add(entity: Entity): void {
+        if (entity.instance in this.entities)
+            log.warning(`Entity ${entity.instance} already exists.`);
+
+        this.entities[entity.instance] = entity;
+
+        // Do not have the projectiles be parsed as part of the region.
+        if (entity.isProjectile()) return;
+
+        this.regions.handle(entity);
+
+        this.grids.addToEntityGrid(entity);
+    }
+
+    /**
+     * Adds the newly created player instance to our list of players.
+     * @param player Player we are adding to our dictionary.
+     */
+
+    public addPlayer(player: Player): void {
+        this.add(player);
+
+        this.players[player.instance] = player;
+    }
+
+    /**
+     * Adds an item to our list of items and entities, then creates
+     * the necessary callbacks for despawning said item (and respawning
+     * if applicable).
+     * @param item The item object we are adding to the world.
+     */
+
+    public addItem(item: Item): void {
+        // Callback for removing the item from the world.
+        item.onDespawn(() => this.removeItem(item));
+
+        // Dropped items have a callback for their despawn.
+        if (item.dropped) {
+            item.despawn();
+
+            // Blinking timeout before the item despawns.
+            item.onBlink(() =>
+                this.world.push(Modules.PacketType.Broadcast, {
+                    packet: new BlinkPacket(item.instance)
+                })
+            );
+        } else item.onRespawn(() => this.addItem(item));
+
+        this.add(item);
+
+        this.items[item.instance] = item;
+    }
+
+    /**
+     * Adds a loot bag to the game world and handles the necessary
+     * callbacks for despawning it.
+     * @param lootBag The loot bag object we are adding to the world.
+     */
+
+    private addLootBag(lootBag: LootBag): void {
+        lootBag.onEmpty(() => this.removeLootBag(lootBag));
+
+        this.add(lootBag);
+
+        this.lootBags[lootBag.instance] = lootBag;
+    }
+
+    /**
+     * Adds the mob instance to its dictionary and its
+     * chest area if existent.
+     * @param mob Mob instance we are adding.
+     */
+
+    public addMob(mob: Mob): void {
+        this.add(mob);
+
+        this.mobs[mob.instance] = mob;
+
+        mob.addToChestArea(this.map.getChestAreas());
+    }
+
+    /**
+     * Creates an entry in the entity dictionary and the chest one.
+     * @param chest The chest object we are adding to the world.
+     */
+
+    private addChest(chest: Chest): void {
+        this.add(chest);
+
+        this.chests[chest.instance] = chest;
+    }
+
+    /**
+     * Adds an NPC object to the world entity dictionary and its
+     * own dictionary.
+     * @param npc The NPC object we are adding to the world.
+     */
+
+    private addNPC(npc: NPC): void {
+        this.add(npc);
+
+        this.npcs[npc.instance] = npc;
+    }
+
+    /**
+     * Adds a pet object to the world entity dictionary and its
+     * own dictionary.
+     * @param pet The pet object we are adding to the world.
+     */
+
+    private addPet(pet: Pet): void {
+        this.add(pet);
+
+        this.pets[pet.instance] = pet;
+    }
+
+    /**
+     * Adds an effect entity to the world entity dictionary and
+     * its own dictionary.
+     * @param effect The effect entity we are adding to the world.
+     */
+
+    private addEffect(effect: Effect): void {
+        effect.onDespawn(() => this.removeEffect(effect));
+
+        this.add(effect);
+
+        this.effects[effect.instance] = effect;
+    }
+
+    /**
+     * Removes the entity from the entity dictionary and sends a despawn
+     * callback to the nearby regions the entity is in.
+     */
+
+    public remove(entity: Entity): void {
+        // Signal to nearby regions that the entity has been removed.
+        this.world.push(Modules.PacketType.Regions, {
+            region: entity.region,
+            packet: new DespawnPacket({
+                instance: entity.instance
+            })
+        });
+
+        // Remove the entity from the entity grid
+        this.grids.removeFromEntityGrid(entity);
+
+        // Remove the entity from the region it is in.
+        this.regions.remove(entity);
+
+        delete this.entities[entity.instance];
+
+        // Clean combat when removing a player.
+        if (entity.isPlayer()) this.world.cleanCombat(entity as Character);
+    }
+
+    /**
+     * Removes the player and clears out its packets and instance.
+     * @param player Player we are removing.
+     */
+
+    public removePlayer(player: Player): void {
+        this.remove(player);
+
+        delete this.players[player.instance];
+
+        this.world.network.deletePacketQueue(player);
+    }
+
+    /**
+     * Removes a chest or respawns it if it's a statically
+     * spawned chest.
+     * @param chest Chest we are removing.
+     */
+
+    public removeChest(chest: Chest): void {
+        this.remove(chest);
+
+        if (chest.mimic || !chest.static) delete this.chests[chest.instance];
+        else chest.respawn();
+    }
+
+    /**
+     * Removes an item from the items dictionary and only
+     * respawns it if it's a statically spawned item.
+     * @param item Item we are removing.
+     */
+
+    public removeItem(item: Item): void {
+        this.remove(item);
+
+        // Dropped items are removed permanently, static ones respawn.
+        if (item.dropped) delete this.items[item.instance];
+        else item.respawn();
+    }
+
+    /**
+     * Removes the loot bag from the world and sends the despawn packet.
+     * @param lootBag The loot bag object we are removing.
+     */
+
+    public removeLootBag(lootBag: LootBag): void {
+        this.remove(lootBag);
+
+        delete this.lootBags[lootBag.instance];
+    }
+
+    /**
+     * Removes the mob from all the entities and the mobs dictionary.
+     * @param mob The mob object that we are removing.
+     */
+
+    public removeMob(mob: Mob): void {
+        this.remove(mob);
+
+        delete this.mobs[mob.instance];
+    }
+
+    /**
+     * Removes a pet object from the world and its dictionary.
+     * @param pet The pet object we are removing.
+     */
+
+    public removePet(pet: Pet): void {
+        this.remove(pet);
+
+        delete this.pets[pet.instance];
+    }
+
+    /**
+     * Removes the effect from the world and its dictionary.
+     * @param effect The effect object we are removing.
+     */
+
+    public removeEffect(effect: Effect): void {
+        this.remove(effect);
+
+        delete this.effects[effect.instance];
+    }
+
+    /**
+     * Getters
+     */
+
+    /**
+     * Grabs an entity from our dictionary of entities.
+     * @param instance The instance of the entity we want.
+     * @returns Returns an entity or undefined.
+     */
+
+    public get(instance: string): Entity {
+        return this.entities[instance];
+    }
+
+    /**
+     * Finds a player based on their username.
+     * @param username The username of the player to find.
+     * @returns A playerobject if found, otherwise undefined.
+     */
+
+    public getPlayer(username: string): Player | undefined {
+        return Object.values(this.players).find((player: Player) => {
+            return player.username.toLowerCase() === username.toLowerCase();
+        });
+    }
+
+    /**
+     * Maps all the players in the world to an array of usernames.
+     * @returns A string array of all usernames.
+     */
+
+    public getPlayerUsernames(): string[] {
+        return Object.values(this.players).map((player: Player) => player.username);
+    }
+
+    /**
+     * Iterates through all the players and finds all the instances of the players
+     * who are connected from the same IP address.
+     * @param ip The string of the IP address we are looking for.
+     * @returns An array of player objects.
+     */
+
+    public getPlayersByIp(ip: string): Player[] {
+        return Object.values(this.players).filter(
+            (player: Player) => player.connection.address === ip
+        );
+    }
+
+    /**
+     * Attempts to find an NPC based on a key. Note that this will find the first
+     * NPC we come across with the key, so it is not recommended to use this
+     * function if there are multiple NPCs with the same key.
+     * @param key The key of the NPC we are looking for.
+     */
+
+    public getNPCByKey(key: string): NPC | undefined {
+        return Object.values(this.npcs).find((npc: NPC) => npc.key === key);
+    }
+
+    /**
+     * Looks for the string of the entity in all the data files
+     * and returns the type of entity it is.
+     * @param key The string key of the entity we are determining.
+     * @returns Entity type id from Modules.
+     */
+
+    private getEntityType(key: string): number {
+        if (key in itemData) return Modules.EntityType.Item;
+        if (key in npcData) return Modules.EntityType.NPC;
+        if (key in mobData) return Modules.EntityType.Mob;
+        if (key in treeData) return Modules.EntityType.Tree;
+        if (key in rockData) return Modules.EntityType.Rock;
+        if (key in fishSpotData) return Modules.EntityType.FishSpot;
+        if (key in foragingData) return Modules.EntityType.Foraging;
+
+        return -1;
+    }
+
+    /**
+     * Callback pointer for the entity iterator in the the `allEntities.`
+     * @param callback An entity that is being iterated.
+     */
+
+    public forEachEntity(callback: (entity: Entity) => void): void {
+        for (let entity of Object.values(this.entities)) callback(entity);
+    }
+
+    /**
+     * Callback that iterates through all the entities and only
+     * selects those that are instances of Character.
+     * @param callback Returns a character type (mob or player for now).
+     */
+
+    public forEachCharacter(callback: (character: Character) => void): void {
+        this.forEachEntity((entity: Entity) => {
+            if (entity instanceof Character) callback(entity);
+        });
+    }
+
+    /**
+     * Iterates through all the entities and only selects those that are
+     * instances of Mob.
+     * @param callback The mob object we are iterating through.
+     */
+
+    public forEachMob(callback: (mob: Mob) => void): void {
+        for (let mob of Object.values(this.mobs)) callback(mob);
+    }
+
+    /**
+     * Iterates through each player in the players collection.
+     * @param callback A player instance.
+     */
+
+    public forEachPlayer(callback: (player: Player) => void): void {
+        for (let player of Object.values(this.players)) callback(player);
+    }
+}

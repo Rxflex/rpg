@@ -1,0 +1,86 @@
+@use '../../abstracts/media';
+@use '../../abstracts/sprite';
+
+#health,
+#mana,
+#mana-mask,
+.health-mask-base,
+.health-text,
+.mana-text {
+    position: absolute;
+}
+
+#health {
+    top: 0.5em;
+    left: 1em;
+}
+
+#mana {
+    top: 3.25em;
+    left: 1em;
+}
+
+#mana-mask,
+.health-mask-base,
+.health-text,
+.mana-text {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#mana-mask,
+.health-mask-base,
+.health-mask-poison,
+.health-mask-white {
+    transition: 0.5s width ease;
+}
+
+.health-text,
+.mana-text {
+    width: 100%;
+    font-size: 1.25em;
+    color: white;
+    text-align: center;
+}
+
+.health-text {
+    top: 0.75em;
+}
+
+.mana-text {
+    top: 0.1em;
+}
+
+/* Safari 7.1+ */
+
+_::-webkit-full-page-media,
+_:future,
+:root .safari_only {
+    #health,
+    #mana {
+        left: 2.5em !important;
+    }
+}
+
+@media (--lg) {
+    #health,
+    #mana {
+        font-size: 0.85em;
+    }
+}
+
+@include sprite.sheet(
+    $image: 'bars',
+    $width: 63,
+    $height: 15,
+    $scale: 4,
+    $selectors: (
+        #health,
+        #mana,
+        '.health-mask-base',
+        #mana-mask,
+        '.health-mask-poison',
+        '.health-mask-white'
+    )
+);

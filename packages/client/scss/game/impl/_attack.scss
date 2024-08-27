@@ -1,0 +1,48 @@
+@use '../../abstracts/media';
+
+#attack-info {
+    position: absolute;
+    top: 0;
+    left: calc(50% - 5em);
+
+    display: none;
+    flex-direction: column;
+
+    box-sizing: border-box;
+    width: 10em;
+    padding: 0.5em 1em;
+
+    border-image-width: 0 1em 1em 1em;
+
+    .name,
+    .health {
+        margin-bottom: 0.25em;
+        color: white;
+        text-align: center;
+    }
+
+    .name {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .details {
+        overflow: hidden;
+        font-size: 0.75em;
+        color: white;
+        text-align: center;
+    }
+
+    .health {
+        overflow: hidden;
+
+        width: 100%;
+        height: 0.75em;
+
+        background-color: red;
+        border: 1px solid #373737;
+        border-radius: 0.125em;
+
+        transition: 0.5s width ease;
+    }
+}

@@ -1,0 +1,45 @@
+{
+    "shrimpspot": {
+        "name": "Shrimp Fishing Spot",
+        "levelRequirement": 1,
+        "experience": 20,
+        "difficulty": 7,
+        "item": "rawshrimp",
+        "achievement": "firstfish"
+    },
+
+    "tutorialshrimpspot": {
+        "name": "Shrimp Fishing Spot",
+        "levelRequirement": 1,
+        "experience": 15,
+        "difficulty": 7,
+        "item": "rawshrimp",
+        "achievement": "firstfish",
+        "quest": "tutorial"
+    },
+
+    "tunaspot": {
+        "name": "Tuna Fishing Spot",
+        "levelRequirement": 1,
+        "experience": 20,
+        "difficulty": 15,
+        "item": "rawtuna",
+        "achievement": "firstfish"
+    },
+
+    "jellyfishspot": {
+        "name": "Jellyfish Fishing Spot",
+        "levelRequirement": 5,
+        "experience": 35,
+        "difficulty": 25,
+        "item": "jellyfish"
+    },
+
+    "clamspot": {
+        "name": "Clam Fishing Spot",
+        "levelRequirement": 10,
+        "experience": 55,
+        "difficulty": 40,
+        "item": "clamobject"
+    }
+}

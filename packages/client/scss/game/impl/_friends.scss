@@ -1,0 +1,37 @@
+@use '../../abstracts/media';
+@use '../../abstracts/sprite';
+
+#friends-container {
+    right: 1em;
+    display: none;
+    width: 20em;
+}
+
+#friends-page {
+    display: flex;
+    gap: 0.5em;
+    width: 100%;
+    height: 100%;
+}
+
+#friends-list {
+    overflow: auto;
+    flex: 1;
+
+    p {
+        font-size: 1.2em;
+    }
+}
+
+@include sprite.sheet(
+    $image: 'characterdialogsheet',
+    $y: 274,
+    $width: 21,
+    $height: 17,
+    $hover: 2,
+    $active: 1,
+    $selectors: (
+        '.add',
+        '.remove'
+    )
+);

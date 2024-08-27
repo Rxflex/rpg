@@ -1,0 +1,36 @@
+@use '../../abstracts/media';
+@use '../../abstracts/sprite';
+
+@include sprite.sheet(
+    $image: 'main',
+    $width: 21,
+    $height: 21,
+    $scale: 3,
+    $hover: 1,
+    $active: 2,
+    $selectors: (
+        #zoom-in,
+        #zoom-out
+    )
+);
+
+#zoom-buttons {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+
+    display: none;
+    flex-flow: row;
+
+    button {
+        background-color: transparent;
+        border: none;
+    }
+}
+
+@media (--sm) {
+    #zoom-buttons {
+        display: flex;
+        flex-direction: row;
+    }
+}
