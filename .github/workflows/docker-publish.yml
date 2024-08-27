@@ -34,7 +34,7 @@ jobs:
               with:
                   context: .
                   push: true
-                  tags: ghcr.io/${{ github.repository_owner }}/kaetram:${{ github.sha }}
+                  tags: ghcr.io/${{ github.repository_owner | toLowerCase }}/kaetram:${{ github.sha }}
                   cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/kaetram:cache
                   cache-to: type=inline
 
